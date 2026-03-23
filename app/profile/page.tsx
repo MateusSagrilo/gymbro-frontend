@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 import { authClient } from "@/app/_lib/auth-client";
 import { getUserTrainData, getHomeData } from "@/app/_lib/api/fetch-generated";
+import { forwardAuthHeadersInit } from "@/app/_lib/forward-auth-headers";
 import dayjs from "dayjs";
 import { BottomNav } from "@/app/_components/bottom-nav";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
@@ -17,13 +18,24 @@ export default async function ProfilePage() {
 
   if (!session.data?.user) redirect("/auth");
 
+  const apiInit = await forwardAuthHeadersInit();
   const [trainData, homeData] = await Promise.all([
-    getUserTrainData(),
-    getHomeData(dayjs().format("YYYY-MM-DD")),
+    getUserTrainData(apiInit),
+    getHomeData(dayjs().format("YYYY-MM-DD"), apiInit),
   ]);
 
+  if (trainData.status === 401) redirect("/auth");
   if (trainData.status !== 200) {
-    throw new Error("Failed to fetch user train data");
+    const message =
+      trainData.data &&
+      typeof trainData.data === "object" &&
+      "error" in trainData.data
+        ? String((trainData.data as { error?: string }).error)
+        : undefined;
+    throw new Error(
+      message ??
+        `Não foi possível carregar os dados de treino (HTTP ${trainData.status}).`,
+    );
   }
 
   const needsOnboarding =

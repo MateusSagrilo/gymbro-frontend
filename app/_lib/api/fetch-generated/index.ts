@@ -392,6 +392,18 @@ export const GetWorkoutDay200WeekDay = {
   SUNDAY: "SUNDAY",
 } as const;
 
+export type GetWorkoutDay200ExercisesItemPreviousPerformance = {
+  weightKg: number;
+  reps: number;
+  /** @pattern ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))$ */
+  completedAt: string;
+};
+
+export type GetWorkoutDay200ExercisesItemSessionLog = {
+  weightKg: number;
+  reps: number;
+};
+
 export type GetWorkoutDay200ExercisesItem = {
   /** @pattern ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$ */
   id: string;
@@ -402,6 +414,8 @@ export type GetWorkoutDay200ExercisesItem = {
   sets: number;
   reps: number;
   restTimeInSeconds: number;
+  previousPerformance?: GetWorkoutDay200ExercisesItemPreviousPerformance;
+  sessionLog?: GetWorkoutDay200ExercisesItemSessionLog;
 };
 
 export type GetWorkoutDay200SessionsItem = {
@@ -472,9 +486,17 @@ export type StartWorkoutSession500 = {
   code: string;
 };
 
+export type UpdateWorkoutSessionBodyExerciseLogsItem = {
+  /** @pattern ^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$ */
+  exerciseId: string;
+  weightKg: number;
+  reps: number;
+};
+
 export type UpdateWorkoutSessionBody = {
   /** @pattern ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$ */
-  completedAt: string;
+  completedAt?: string;
+  exerciseLogs?: UpdateWorkoutSessionBodyExerciseLogsItem[];
 };
 
 export type UpdateWorkoutSession200 = {
@@ -483,7 +505,7 @@ export type UpdateWorkoutSession200 = {
   /** @pattern ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$ */
   startedAt: string;
   /** @pattern ^(?:(?:\d\d[2468][048]|\d\d[13579][26]|\d\d0[48]|[02468][048]00|[13579][26]00)-02-29|\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\d|30)|(?:02)-(?:0[1-9]|1\d|2[0-8])))T(?:(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z))$ */
-  completedAt: string;
+  completedAt: string | null;
 };
 
 export type UpdateWorkoutSession401 = {

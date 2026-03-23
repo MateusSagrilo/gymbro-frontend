@@ -6,6 +6,7 @@ import {
   getHomeData,
   getUserTrainData,
 } from "@/app/_lib/api/fetch-generated";
+import { forwardAuthHeadersInit } from "@/app/_lib/forward-auth-headers";
 import dayjs from "dayjs";
 import { CircleCheck, CirclePercent, Hourglass } from "lucide-react";
 import { BottomNav } from "@/app/_components/bottom-nav";
@@ -32,10 +33,11 @@ export default async function StatsPage() {
   const from = today.subtract(2, "month").startOf("month").format("YYYY-MM-DD");
   const to = today.endOf("month").format("YYYY-MM-DD");
 
+  const apiInit = await forwardAuthHeadersInit();
   const [statsResponse, homeData, trainData] = await Promise.all([
-    getStats({ from, to }),
-    getHomeData(today.format("YYYY-MM-DD")),
-    getUserTrainData(),
+    getStats({ from, to }, apiInit),
+    getHomeData(today.format("YYYY-MM-DD"), apiInit),
+    getUserTrainData(apiInit),
   ]);
 
   const needsOnboarding =

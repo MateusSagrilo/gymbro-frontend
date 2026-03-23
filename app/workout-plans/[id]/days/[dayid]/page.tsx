@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { authClient } from "@/app/_lib/auth-client";
 import { headers } from "next/headers";
 import { getWorkoutDay, getHomeData, getUserTrainData } from "@/app/_lib/api/fetch-generated";
+import { forwardAuthHeadersInit } from "@/app/_lib/forward-auth-headers";
 import dayjs from "dayjs";
 import Image from "next/image";
 import { Calendar, Timer, Dumbbell } from "lucide-react";
@@ -10,7 +11,7 @@ import { BottomNav } from "@/app/_components/bottom-nav";
 import { BackButton } from "./_components/back-button";
 import { ExerciseCard } from "./_components/exercise-card";
 import { StartWorkoutButton } from "./_components/start-workout-button";
-import { CompleteWorkoutButton } from "./_components/complete-workout-button";
+import { WorkoutInProgressSection } from "./_components/workout-in-progress-section";
 
 const WEEKDAY_LABELS: Record<string, string> = {
   MONDAY: "SEGUNDA",
@@ -35,7 +36,7 @@ const WEEKDAY_TITLE_LABELS: Record<string, string> = {
 export default async function WorkoutDayPage({
   params,
 }: {
-  params: Promise<{ id: string; dayId: string }>;
+  params: Promise<{ id: string; dayid: string }>;
 }) {
   const session = await authClient.getSession({
     fetchOptions: {
@@ -45,11 +46,12 @@ export default async function WorkoutDayPage({
 
   if (!session.data?.user) redirect("/auth");
 
-  const { id: workoutPlanId, dayId } = await params;
+  const { id: workoutPlanId, dayid: workoutDayId } = await params;
+  const apiInit = await forwardAuthHeadersInit();
   const [workoutDayData, homeData, trainData] = await Promise.all([
-    getWorkoutDay(workoutPlanId, dayId),
-    getHomeData(dayjs().format("YYYY-MM-DD")),
-    getUserTrainData(),
+    getWorkoutDay(workoutPlanId, workoutDayId, apiInit),
+    getHomeData(dayjs().format("YYYY-MM-DD"), apiInit),
+    getUserTrainData(apiInit),
   ]);
 
   const needsOnboarding =
@@ -134,7 +136,7 @@ export default async function WorkoutDayPage({
             {!hasInProgressSession && !hasCompletedSession && (
               <StartWorkoutButton
                 workoutPlanId={workoutPlanId}
-                workoutDayId={dayId}
+                workoutDayId={workoutDayId}
               />
             )}
             {hasCompletedSession && (
@@ -151,22 +153,21 @@ export default async function WorkoutDayPage({
       </div>
 
       <div className="flex flex-col gap-3 px-5 pt-5">
-        {exercises
-          .sort((a, b) => a.order - b.order)
-          .map((exercise) => (
-            <ExerciseCard key={exercise.id} exercise={exercise} />
-          ))}
-      </div>
-
-      {hasInProgressSession && inProgressSession && (
-        <div className="px-5 pt-5">
-          <CompleteWorkoutButton
+        {hasInProgressSession && inProgressSession ? (
+          <WorkoutInProgressSection
+            exercises={exercises}
             workoutPlanId={workoutPlanId}
-            workoutDayId={dayId}
+            workoutDayId={workoutDayId}
             sessionId={inProgressSession.id}
           />
-        </div>
-      )}
+        ) : (
+          exercises
+            .sort((a, b) => a.order - b.order)
+            .map((exercise) => (
+              <ExerciseCard key={exercise.id} exercise={exercise} />
+            ))
+        )}
+      </div>
 
       <BottomNav activePage="calendar" />
     </div>

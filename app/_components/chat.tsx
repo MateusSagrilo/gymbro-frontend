@@ -34,7 +34,7 @@ export function Chat({ embedded = false, initialMessage }: ChatProps) {
     chat_initial_message: parseAsString,
   });
 
-  const { messages, sendMessage, status } = useChat({
+  const { messages, sendMessage, status, error, clearError } = useChat({
     transport: new DefaultChatTransport({
       api: `${process.env.NEXT_PUBLIC_API_URL}/ai`,
       credentials: "include",
@@ -140,6 +140,21 @@ export function Chat({ embedded = false, initialMessage }: ChatProps) {
       </div>
 
       <div className="flex-1 overflow-y-auto pb-5">
+        {error ? (
+          <div className="mx-5 mt-5 rounded-xl border border-destructive/30 bg-destructive/10 px-4 py-3 font-heading text-sm text-destructive">
+            <p className="font-medium">Não foi possível obter resposta do coach.</p>
+            <p className="mt-1 text-destructive/90">{error.message}</p>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="mt-3"
+              onClick={() => clearError()}
+            >
+              Fechar aviso
+            </Button>
+          </div>
+        ) : null}
         {messages.map((message) => (
           <div
             key={message.id}

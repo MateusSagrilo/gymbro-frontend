@@ -7,6 +7,7 @@ import {
 } from "lucide-react";
 import dayjs from "dayjs";
 import { getHomeData } from "@/app/_lib/api/fetch-generated";
+import { forwardAuthHeadersInit } from "@/app/_lib/forward-auth-headers";
 import { cn } from "@/lib/utils";
 import { ChatOpenButton } from "@/app/_components/chat-open-button";
 
@@ -16,7 +17,8 @@ interface BottomNavProps {
 
 export async function BottomNav({ activePage = "home" }: BottomNavProps) {
   const today = dayjs();
-  const homeData = await getHomeData(today.format("YYYY-MM-DD"));
+  const apiInit = await forwardAuthHeadersInit();
+  const homeData = await getHomeData(today.format("YYYY-MM-DD"), apiInit);
 
   const calendarHref =
     homeData.status === 200 && homeData.data.activeWorkoutPlanId

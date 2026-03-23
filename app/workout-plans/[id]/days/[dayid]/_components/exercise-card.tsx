@@ -1,15 +1,29 @@
 "use client";
 
+import dayjs from "dayjs";
 import { CircleHelp, Zap } from "lucide-react";
 import { useQueryStates, parseAsBoolean, parseAsString } from "nuqs";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import type { GetWorkoutDay200ExercisesItem } from "@/app/_lib/api/fetch-generated";
 
 interface ExerciseCardProps {
   exercise: GetWorkoutDay200ExercisesItem;
+  showLogInputs?: boolean;
+  logWeight?: string;
+  logReps?: string;
+  onLogWeightChange?: (value: string) => void;
+  onLogRepsChange?: (value: string) => void;
 }
 
-export function ExerciseCard({ exercise }: ExerciseCardProps) {
+export function ExerciseCard({
+  exercise,
+  showLogInputs,
+  logWeight = "",
+  logReps = "",
+  onLogWeightChange,
+  onLogRepsChange,
+}: ExerciseCardProps) {
   const [, setChatParams] = useQueryStates({
     chat_open: parseAsBoolean.withDefault(false),
     chat_initial_message: parseAsString,
@@ -22,6 +36,8 @@ export function ExerciseCard({ exercise }: ExerciseCardProps) {
     });
   };
 
+  const prev = exercise.previousPerformance;
+
   return (
     <div className="flex flex-col gap-3 rounded-xl border border-border p-5">
       <div className="flex items-center justify-between">
@@ -32,7 +48,7 @@ export function ExerciseCard({ exercise }: ExerciseCardProps) {
           <CircleHelp className="size-5 text-muted-foreground" />
         </Button>
       </div>
-      <div className="flex items-center gap-1.5">
+      <div className="flex flex-wrap items-center gap-1.5">
         <span className="rounded-full bg-muted px-2.5 py-1 font-heading text-xs font-semibold uppercase text-muted-foreground">
           {exercise.sets} séries
         </span>
@@ -44,6 +60,58 @@ export function ExerciseCard({ exercise }: ExerciseCardProps) {
           {exercise.restTimeInSeconds}s
         </span>
       </div>
+      {prev && !showLogInputs && (
+        <p className="font-heading text-xs text-muted-foreground">
+          Último treino:{" "}
+          <span className="font-semibold text-foreground">
+            {prev.weightKg} kg × {prev.reps} reps
+          </span>
+          {prev.completedAt
+            ? ` · ${dayjs(prev.completedAt).format("DD/MM/YYYY")}`
+            : null}
+        </p>
+      )}
+      {prev && showLogInputs && (
+        <p className="font-heading text-xs text-muted-foreground">
+          Referência do último treino: {prev.weightKg} kg × {prev.reps} reps
+          {prev.completedAt
+            ? ` (${dayjs(prev.completedAt).format("DD/MM/YYYY")})`
+            : null}
+        </p>
+      )}
+      {showLogInputs && onLogWeightChange && onLogRepsChange && (
+        <div className="flex flex-col gap-2 border-t border-border pt-3">
+          <span className="font-heading text-xs font-semibold uppercase text-muted-foreground">
+            Registrar hoje
+          </span>
+          <div className="grid grid-cols-2 gap-3">
+            <label className="flex flex-col gap-1">
+              <span className="font-heading text-xs text-muted-foreground">
+                Carga (kg)
+              </span>
+              <Input
+                inputMode="decimal"
+                placeholder="0"
+                value={logWeight}
+                onChange={(e) => onLogWeightChange(e.target.value)}
+                className="font-heading"
+              />
+            </label>
+            <label className="flex flex-col gap-1">
+              <span className="font-heading text-xs text-muted-foreground">
+                Repetições
+              </span>
+              <Input
+                inputMode="numeric"
+                placeholder={String(exercise.reps)}
+                value={logReps}
+                onChange={(e) => onLogRepsChange(e.target.value)}
+                className="font-heading"
+              />
+            </label>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

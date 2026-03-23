@@ -41,7 +41,7 @@ export default async function AuthPage() {
         </div>
 
         <p className="font-heading text-xs leading-[1.4] text-primary-foreground/70">
-          ©2026 Copyright FIT.AI. Todos os direitos reservados
+          ©2026 Copyright GYMBRO.AI. Todos os direitos reservados
         </p>
       </div>
     </div>

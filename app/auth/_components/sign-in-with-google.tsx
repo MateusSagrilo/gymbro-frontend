@@ -5,12 +5,31 @@ import Image from "next/image";
 import { authClient } from "../../_lib/auth-client";
 import { Button } from "@/components/ui/button";
 
+type FetchStyleError = {
+  message?: unknown;
+  status?: unknown;
+  statusText?: unknown;
+  code?: unknown;
+};
+
 function formatAuthError(error: unknown): string {
-  if (error instanceof Error) return error.message;
-  if (typeof error === "object" && error !== null && "message" in error) {
-    const m = (error as { message: unknown }).message;
-    if (typeof m === "string") return m;
+  if (error instanceof Error && error.message) return error.message;
+
+  if (typeof error === "object" && error !== null) {
+    const e = error as FetchStyleError;
+    if (typeof e.message === "string" && e.message.trim()) return e.message;
+    if (typeof e.code === "string" && e.code.trim()) return e.code;
+    if (typeof e.statusText === "string" && e.statusText.trim()) {
+      const status =
+        typeof e.status === "number"
+          ? ` (${e.status})`
+          : typeof e.status === "string"
+            ? ` (${e.status})`
+            : "";
+      return `${e.statusText}${status}`;
+    }
   }
+
   return "Não foi possível entrar com o Google.";
 }
 
@@ -19,13 +38,22 @@ export const SignInWithGoogle = () => {
 
   const handleGoogleLogin = async () => {
     setErrorMessage(null);
-    const { error } = await authClient.signIn.social({
-      provider: "google",
-      callbackURL: `${process.env.NEXT_PUBLIC_BASE_URL}/`,
-    });
+    try {
+      const callbackURL =
+        typeof window !== "undefined"
+          ? `${window.location.origin}/`
+          : `${process.env.NEXT_PUBLIC_BASE_URL ?? ""}/`;
 
-    if (error) {
-      setErrorMessage(formatAuthError(error));
+      const { error } = await authClient.signIn.social({
+        provider: "google",
+        callbackURL,
+      });
+
+      if (error) {
+        setErrorMessage(formatAuthError(error));
+      }
+    } catch (err) {
+      setErrorMessage(formatAuthError(err));
     }
   };
 
