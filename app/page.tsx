@@ -19,7 +19,7 @@ export default async function Home() {
     redirect("/auth")
   }
 
-  if (!session.data?.user) redirect("/auth");
+  if (!session?.data?.user) redirect("/auth");
 
   const today = dayjs();
   const todayStr = today.format("YYYY-MM-DD");

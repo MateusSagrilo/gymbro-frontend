@@ -16,7 +16,7 @@ export default async function AuthPage() {
     redirect("/auth");
   }
 
-  if (session.data?.user) redirect("/");
+  if (session?.data?.user) redirect("/");
 
   return (
     <div className="relative flex min-h-svh flex-col bg-black">
