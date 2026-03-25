@@ -5,18 +5,13 @@ import { headers } from "next/headers";
 import { SignInWithGoogle } from "./_components/sign-in-with-google";
 
 export default async function AuthPage() {
-  let session;
-  try {
-    session = await authClient.getSession({
-      fetchOptions: {
-        headers: await headers(),
-      },
-    });
-  } catch {
-    redirect("/auth");
-  }
+  const session = await authClient.getSession({
+    fetchOptions: {
+      headers: await headers(),
+    },
+  });
 
-  if (session?.data?.user) redirect("/");
+  if (session.data?.user) redirect("/");
 
   return (
     <div className="relative flex min-h-svh flex-col bg-black">

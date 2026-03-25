@@ -8,18 +8,13 @@ import { BottomNav } from "./_components/bottom-nav";
 import { HomeContent, type HomeContentPayload } from "./_components/home-content";
 
 export default async function Home() {
-  let session
-  try {
-      session = await authClient.getSession({
-      fetchOptions: {
-        headers: await headers(),
-      },
-    });
-  } catch {
-    redirect("/auth")
-  }
+  const session = await authClient.getSession({
+    fetchOptions: {
+      headers: await headers(),
+    },
+  });
 
-  if (!session?.data?.user) redirect("/auth");
+  if (!session.data?.user) redirect("/auth");
 
   const today = dayjs();
   const todayStr = today.format("YYYY-MM-DD");
