@@ -20,7 +20,8 @@ export const customFetch = async <T>(
     // ECONNREFUSED, rede indisponível, etc. — devolve 500 para o caller tratar
     return {
       data: {
-        error: "Serviço indisponível. Verifique se a API está rodando e tente novamente.",
+        error:
+          "Serviço indisponível. Verifique se a API está rodando e tente novamente.",
         code: "NETWORK_ERROR",
       },
       status: 500,
