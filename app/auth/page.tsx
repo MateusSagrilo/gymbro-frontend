@@ -5,11 +5,16 @@ import { headers } from "next/headers";
 import { SignInWithGoogle } from "./_components/sign-in-with-google";
 
 export default async function AuthPage() {
-  const session = await authClient.getSession({
-    fetchOptions: {
-      headers: await headers(),
-    },
-  });
+  let session;
+  try {
+    session = await authClient.getSession({
+      fetchOptions: {
+        headers: await headers(),
+      },
+    });
+  } catch {
+    redirect("/auth");
+  }
 
   if (session.data?.user) redirect("/");
 

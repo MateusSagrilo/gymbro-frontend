@@ -8,11 +8,16 @@ import { BottomNav } from "./_components/bottom-nav";
 import { HomeContent, type HomeContentPayload } from "./_components/home-content";
 
 export default async function Home() {
-  const session = await authClient.getSession({
-    fetchOptions: {
-      headers: await headers(),
-    },
-  });
+  let session
+  try {
+      session = await authClient.getSession({
+      fetchOptions: {
+        headers: await headers(),
+      },
+    });
+  } catch {
+    redirect("/auth")
+  }
 
   if (!session.data?.user) redirect("/auth");
 
