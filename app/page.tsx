@@ -1,18 +1,27 @@
 import { redirect } from "next/navigation";
-import { getHomeData, getUserTrainData } from "./_lib/api/fetch-generated";
 import { forwardAuthHeadersInit } from "./_lib/forward-auth-headers";
+import { getHomeData, getUserTrainData } from "./_lib/api/fetch-generated";
 import dayjs from "dayjs";
 import { BottomNav } from "./_components/bottom-nav";
-import { HomeContent, type HomeContentPayload } from "./_components/home-content";
+import {
+  HomeContent,
+  type HomeContentPayload,
+} from "./_components/home-content";
 
 export default async function Home() {
   const apiInit = await forwardAuthHeadersInit();
 
   const sessionRes = await fetch(
     `${process.env.NEXT_PUBLIC_API_URL}/api/auth/get-session`,
-    { ...apiInit, cache: "no-store" }
+    { ...apiInit, cache: "no-store" },
   );
-  const session = await sessionRes.json();
+
+  const sessionText = await sessionRes.text();
+  console.log("SESSION RESPONSE:", sessionText);
+  console.log("SESSION STATUS:", sessionRes.status);
+  console.log("COOKIE SENT:", (apiInit as any)?.headers?.cookie ?? "nenhum");
+
+  const session = sessionText ? JSON.parse(sessionText) : null;
 
   if (!session?.user) redirect("/auth");
 
