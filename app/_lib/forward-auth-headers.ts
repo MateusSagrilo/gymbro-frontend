@@ -8,3 +8,4 @@ export async function forwardAuthHeadersInit(): Promise<RequestInit> {
   const cookie = (await headers()).get("cookie");
   return cookie ? { headers: { cookie } } : {};
 }
+

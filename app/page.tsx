@@ -10,6 +10,7 @@ import {
 
 export default async function Home() {
   const apiInit = await forwardAuthHeadersInit();
+  console.log("COOKIE SENT:", (apiInit as any)?.headers?.cookie ?? "nenhum");
 
   const sessionRes = await fetch(
     `${process.env.NEXT_PUBLIC_BASE_URL}/api/auth/get-session`,
