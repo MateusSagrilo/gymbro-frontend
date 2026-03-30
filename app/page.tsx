@@ -12,16 +12,11 @@ export default async function Home() {
   const apiInit = await forwardAuthHeadersInit();
 
   const sessionRes = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/api/auth/get-session`,
+    `${process.env.NEXT_PUBLIC_BASE_URL}/api/auth/get-session`,
     { ...apiInit, cache: "no-store" },
   );
 
-  const sessionText = await sessionRes.text();
-  console.log("SESSION RESPONSE:", sessionText);
-  console.log("SESSION STATUS:", sessionRes.status);
-  console.log("COOKIE SENT:", (apiInit as any)?.headers?.cookie ?? "nenhum");
-
-  const session = sessionText ? JSON.parse(sessionText) : null;
+  const session = await sessionRes.json();
 
   if (!session?.user) redirect("/auth");
 
