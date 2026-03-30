@@ -13,7 +13,7 @@ export default async function Home() {
   console.log("COOKIE SENT:", (apiInit as any)?.headers?.cookie ?? "nenhum");
 
   const sessionRes = await fetch(
-    `${process.env.NEXT_PUBLIC_BASE_URL}/api/auth/get-session`,
+    `${process.env.NEXT_PUBLIC_API_URL}/api/auth/get-session`,
     { ...apiInit, cache: "no-store" },
   );
 
