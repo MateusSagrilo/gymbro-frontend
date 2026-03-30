@@ -1,6 +1,4 @@
 import { redirect } from "next/navigation";
-import { authClient } from "@/app/_lib/auth-client";
-import { headers } from "next/headers";
 import { getHomeData, getUserTrainData } from "./_lib/api/fetch-generated";
 import { forwardAuthHeadersInit } from "./_lib/forward-auth-headers";
 import dayjs from "dayjs";
@@ -8,17 +6,18 @@ import { BottomNav } from "./_components/bottom-nav";
 import { HomeContent, type HomeContentPayload } from "./_components/home-content";
 
 export default async function Home() {
-  const session = await authClient.getSession({
-    fetchOptions: {
-      headers: await headers(),
-    },
-  });
+  const apiInit = await forwardAuthHeadersInit();
 
-  if (!session.data?.user) redirect("/auth");
+  const sessionRes = await fetch(
+    `${process.env.NEXT_PUBLIC_API_URL}/api/auth/get-session`,
+    { ...apiInit, cache: "no-store" }
+  );
+  const session = await sessionRes.json();
+
+  if (!session?.user) redirect("/auth");
 
   const today = dayjs();
   const todayStr = today.format("YYYY-MM-DD");
-  const apiInit = await forwardAuthHeadersInit();
   const [homeData, trainData] = await Promise.all([
     getHomeData(todayStr, apiInit),
     getUserTrainData(apiInit),
@@ -42,7 +41,7 @@ export default async function Home() {
       (trainData.status === 200 && !trainData.data);
     if (needsOnboarding) redirect("/onboarding");
 
-    const userName = session.data.user.name?.split(" ")[0] ?? "";
+    const userName = session.user.name?.split(" ")[0] ?? "";
     payload = {
       kind: "ok",
       userName,
